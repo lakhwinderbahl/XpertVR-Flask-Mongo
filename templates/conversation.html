@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Conversation</title>
+  <style>
+    /* Styles for the conversation page */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #F6F8FA;
+      padding-top: 20px;
+    }
+
+    h1 {
+      color: #555555;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      height: 400px;
+      overflow-y: scroll;
+      scrollbar-width: thin;
+      scrollbar-color: #3E7BF6 #F0F2F5;
+    }
+
+    .chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-container::-webkit-scrollbar-track {
+      background: #F0F2F5;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+      background-color: #3E7BF6;
+      border-radius: 3px;
+    }
+
+    .message {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+
+    .user-message {
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      text-align: right;
+    }
+
+    .system-message {
+      background-color: #CCCCCC;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #F0F2F5;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .end-chat-btn {
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      position: absolute;
+      top: 20px;
+      right: 130px;
+      cursor: pointer;
+    }
+
+    /* Logout button style */
+    .logout-button {
+      position: absolute;
+      top: 20px;
+      right: 15px;
+      padding: 10px 25px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none; /* Remove underline from the link */
+    }
+  </style>
+  <script>
+    // import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+    const character = '{{ character }}';
+    const case1 = '{{ case }}';
+    const session = crypto.randomUUID();
+    console.log(character)
+    console.log(case1)
+
+    // JavaScript code for conversation page
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatContainer = document.getElementById('chat-container');
+      const messageInput = document.getElementById('message-input');
+      const messageForm = document.getElementById('message-form');
+      const endChatBtn = document.getElementById('end-chat-btn');
+      const logoutButton = document.getElementById('logout-button');
+
+
+      // Function to send a message
+      function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message !== '') {
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message');
+          messageElement.classList.add('user-message');
+          messageElement.textContent = message;
+          chatContainer.appendChild(messageElement);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          messageInput.value = '';
+
+          // Send the user message to the server for processing
+          fetch('/ask', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              question: message,
+              character: character,
+              case: decodeURIComponent(case1),
+              session_id: session
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+              const answer = data.answer;
+              const emotion = data.emotion;
+              const systemMessageElement = document.createElement('div');
+              systemMessageElement.classList.add('message');
+              systemMessageElement.classList.add('system-message');
+              systemMessageElement.textContent = `Answer: ${answer}, Emotion: ${emotion}`;
+              chatContainer.appendChild(systemMessageElement);
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        }
+      }
+
+      // Event listener for the message form submission
+      messageForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        sendMessage();
+      });
+
+      // Event listener for the end chat button click
+      endChatBtn.addEventListener('click', function() {
+        window.location.href = '/';
+      });
+
+      logoutButton.addEventListener('click', function() {
+        const logoutURL = '{{ url_for('logout') }}';
+        window.location.href = logoutURL;
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Conversation</h1>
+  <!-- Logout button -->
+  <button id="logout-button" class="logout-button">Logout</button>
+  <div id="chat-container" class="chat-container"></div>
+  <form id="message-form">
+    <input type="text" id="message-input" placeholder="Type your message" autocomplete="off" autofocus>
+    <input type="submit" value="Send">
+  </form>
+  <button id="end-chat-btn" class="end-chat-btn">End Chat</button>
+
+</body>
+</html>

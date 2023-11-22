@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>XpertVR</title>
+  <style>
+    /* Styles for the index page */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #F6F8FA;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      color: #555555;
+    }
+
+    form {
+      display: inline-block;
+      background-color: #FFFFFF;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"],
+    select {
+      padding: 10px;
+      margin-bottom: 10px;
+      width: 300px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #logout-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none; /* Remove underline from the link */
+        }
+  </style>
+  <script>
+    // JavaScript code for the index page
+    document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('dynamic-form');
+    const caseSelect = document.getElementById('case-name');
+    const characterSelect = document.getElementById('character-name');
+
+    var charactersByCase = {
+      'Domestic Assault': ['Linda Taylor', 'Joan White'],
+      'Break & Enter': ['Priya Kumar'],
+      'Traphouse': ['Jordan Benson']
+    };
+
+    const room_url = "{{ url_for('dropdown') }}"; // Corrected the variable declaration
+    fetch(room_url)
+        .then(response => response.json())
+        .then(data => {
+            // data is a parsed JSON object
+            charactersByCase = data;
+            const all_cases = Object.keys(charactersByCase);
+            all_cases.forEach(function(single_case) {
+              const option = document.createElement('option');
+              option.value = single_case;
+              option.textContent = single_case;
+              caseSelect.appendChild(option);
+            });
+        });
+      // Define the available characters for each case
+      console.log(charactersByCase)
+      // Function to update the character options based on the selected case
+      function updateCharacterOptions() {
+        const selectedCase = caseSelect.value;
+        const characters = charactersByCase[selectedCase] || [];
+
+        // Clear previous options
+        characterSelect.innerHTML = '';
+
+        // Add new character options
+        characters.forEach(function (character) {
+          const option = document.createElement('option');
+          option.value = character;
+          option.textContent = character;
+          characterSelect.appendChild(option);
+        });
+      }
+
+      // Event listener for the case select change
+      caseSelect.addEventListener('change', function () {
+        updateCharacterOptions();
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const caseName = caseSelect.value;
+        const characterName = characterSelect.value;
+        if (caseName !== '' && characterName !== '') {
+          window.location.href = '/conversation?character=' + encodeURIComponent(characterName) + '&case=' + encodeURIComponent(caseName);
+        }
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <h1>XpertVR</h1>
+    <!-- Logout button -->
+    <form id="logout-button" method="get" action="{{url_for('logout')}}">
+      <button type="submit" class="btn btn-primary btn-lg">Logout</button>
+    </form>
+  <nav>
+    <ul>
+      <li>
+        <form method="get" action="{{url_for('case_menu')}}">
+          <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
+            <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Level Editor</button>
+          </div>       
+        </form>
+
+        <form method="get" action="{{url_for('chat_history')}}">
+          <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
+            <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Chat History</button>
+          </div>       
+        </form>
+      </li>
+    </ul>
+  </nav>
+
+  <form id="dynamic-form">
+    <label for="case-name">Case:</label>
+    <br>
+    <select id="case-name" required>
+      <option value="">Select a case</option>
+    </select>
+    <br>
+    <label for="character-name">Character Name:</label>
+    <br>
+    <select id="character-name" required>
+      <option value="">Select a character</option>
+    </select>
+    <br>
+    <input type="submit" value="Start Chat">
+  </form>
+</body>
+
+</html>

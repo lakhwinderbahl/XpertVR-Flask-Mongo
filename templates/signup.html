@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup - XpertVR</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #F6F8FA;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      color: #555555;
+    }
+
+    form {
+      display: inline-block;
+      background-color: #FFFFFF;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      padding: 10px;
+      margin-bottom: 10px;
+      width: 300px;
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #3E7BF6;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>XpertVR</h1>
+
+  <form method="post" action="/signup">
+    <h2>Signup</h2>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <input type="text" name="username" placeholder="Username" required>
+    <br>
+    <input type="password" name="password" placeholder="Password" required>
+    <br>
+    <input type="submit" value="Signup">
+  </form>
+</body>
+</html>
